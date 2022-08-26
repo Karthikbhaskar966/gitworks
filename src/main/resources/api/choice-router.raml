@@ -1,0 +1,46 @@
+#%RAML 1.0
+title: choice-ROUTER
+/choice/{empname}:
+  get:
+    queryParameters:
+      empID:
+        type: string
+        example: "45"
+    responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "messege": "sucess",
+                  "statuscode": 200
+                } 
+              
+        400:
+          body:
+            application/json:
+              example:
+                {
+                "messege": "bad",
+                "status": "400"
+              } 
+             
+                
+        404:
+          body:
+            application/json:
+              example:
+                 {
+                "messege": "notfound",
+                "status": "404"
+              }
+             
+        500:
+          body:
+            application/json:
+              example:
+                {
+                "messege": "internalserver error",
+                "status": "500"
+              } 
+    

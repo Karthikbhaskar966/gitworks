@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="get-resourcesFlow" doc:id="12f42fd9-eac9-4dcd-815b-f9c5957737f1" >
+		<logger level="INFO" doc:name="DB-start" doc:id="f0e7645a-19e2-4912-b39b-d93a6ea3cb85" message="Database call flow ****** start"/>
+		<db:select doc:name="Select" doc:id="814a4abb-9654-4f77-bbbd-4447eea714f2">
+			<db:sql ><![CDATA[SELECT * FROM mule.karthick;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="973775ae-0cbb-4e87-9d38-85f39bc011d5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="bea0c780-5096-4a0f-bb7c-577024450c51" >
+			<when expression='#[payload != ("empty")]'>
+				<ee:transform doc:name="Transform Message" doc:id="a830b4e3-5c5a-4f48-b1f8-787c0b83d645" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+		</choice>
+	</flow>
+</mule>

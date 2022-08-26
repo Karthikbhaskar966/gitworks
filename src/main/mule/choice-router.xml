@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener-config name="choice-router-httpListenerConfig">
+        <http:listener-connection host="${secure::http.listner.host}" port="${secure::http.listner.port}" />
+    </http:listener-config>
+    <apikit:config name="choice-router-config" api="choice-router.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <configuration doc:name="Configuration" doc:id="2d3279fb-3c4b-44bb-a45f-acbb3adb20a0" defaultErrorHandler-ref="global-Error_Handler" />
+	<flow name="choice-router-main">
+        <http:listener config-ref="choice-router-httpListenerConfig" path="${secure::http.listner.path}">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="choice-router-config" />
+		<error-handler ref="global-Error_Handler" />
+            
+    </flow>
+    <flow name="get:\choice\(empname):choice-router-config">
+        <logger level="INFO" doc:name="start-Logger" doc:id="f35dab12-ae10-4777-9a9d-795dc11f61a0" message="flow start"/>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="empname"><![CDATA[attributes.uriParams.'empname']]></ee:set-variable>
+				<ee:set-variable variableName="empID" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.empID]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<flow-ref doc:name="get-resourcesFlow-Flow Reference" doc:id="b336da05-fc12-4446-9937-a22cbd5d358d" name="get-resourcesFlow"/>
+		<ee:transform doc:name="Transform Message" doc:id="7a13e678-311a-4cbd-8a97-aba4cad3de07" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler ref="global-Error_Handler" />
+    </flow>
+</mule>
